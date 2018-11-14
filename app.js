@@ -3,10 +3,25 @@ const app = express();
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const mongoose = require('mongoose');
+
+const mongoUrl = require('./api/configs/keys').mongoUrl;
 
 const productRoutes = require('./api/routes/products');
 const orderRouters = require('./api/routes/orders');
 
+mongoose.connect(
+    mongoUrl, 
+    {
+        useNewUrlParser: true,
+    }, 
+    (err) => {
+    if(err) {
+        console.log(err);
+        return;
+    }
+    console.log("connect mongodb success");
+});
 
 app.get('/', (req, res, next) => {
     res.status(200).json(
