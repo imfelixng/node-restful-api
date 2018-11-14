@@ -1,0 +1,1 @@
+module.exports.mongoUrl = "mongodb://ngquangan:" + process.env.MONGO_PW + "@ds239682.mlab.com:39682/shop";

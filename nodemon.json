@@ -1,0 +1,6 @@
+{
+    "env": {
+        "MONGO_USER": "ngquangan",
+        "MONGO_PW": "nqa97_it"
+    }
+}
