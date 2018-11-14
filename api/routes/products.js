@@ -9,8 +9,14 @@ router.get('/', (req, res, next) => { // /products
 });
 
 router.post('/', (req, res, next) => { // /products
+    const product = {
+        name: req.body.name,
+        price: req.body.price
+    }
+    console.log(product);
     res.status(201).json({
-        message: 'Handing POST requests to /products'
+        message: 'Handing POST requests to /products',
+        createProduct: product
     });
 });
 
