@@ -36,20 +36,20 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-let whitelist = ['http://localhost:3000'];
+// let whitelist = ['http://localhost:3000'];
 
-let corsOptions = {
-    origin: (origin, callback) => {
-        if(whitelist.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    }
-}
+// let corsOptions = {
+//     origin: (origin, callback) => {
+//         if(whitelist.indexOf(origin) !== -1) {
+//             callback(null, true);
+//         } else {
+//             callback(new Error('Not allowed by CORS'))
+//         }
+//     }
+// }
 
 //use external module cors
-app.use(cors(corsOptions));
+app.use(cors());
 
 //CORS not use external module
 // app.use((req, res, next) => {
