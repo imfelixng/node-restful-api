@@ -7,7 +7,7 @@ const Product = require('../models/product');
 
 
 router.get('/', (req, res, next) => { // /products
-    
+    //function select: định nghĩa các trường cần trả về cho client
     Product.find().select("_id name price").then(docs => {
         
         const response = {
@@ -103,7 +103,7 @@ router.patch('/:productId', (req, res, next) => {
             message: 'Product updated',
             request: {
                type: 'GET',
-               url: "http://localhost:12345/products/" + doc._id 
+               url: "http://localhost:12345/products/" + id 
             }
         });
     }).catch(err => {
