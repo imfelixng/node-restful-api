@@ -33,6 +33,8 @@ app.get('/', (req, res, next) => {
 });
 
 app.use(morgan('dev'));
+//set prefix ở path có thể truy cập toàn bộ file trong upload
+app.use('/uploads', express.static("uploads"));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
