@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-
+const fs  = require('fs');
 const mongoUrl = require('./api/configs/keys').mongoUrl;
 
 const productRoutes = require('./api/routes/products');
@@ -23,6 +23,17 @@ mongoose.connect(
     console.log("connect mongodb success");
 });
 
+const dirUpload = 'uploads';
+
+try {
+    if(!fs.existsSync(dirUpload)) {
+        fs.mkdirSync(dirUpload);
+        console.log("Created folder " + dirUpload + " success");
+    }
+} catch (error) {
+    console.log(error);
+}
+
 app.get('/', (req, res, next) => {
     res.status(200).json(
         {
@@ -31,6 +42,7 @@ app.get('/', (req, res, next) => {
     );
 
 });
+
 
 app.use(morgan('dev'));
 //set prefix ở path có thể truy cập toàn bộ file trong upload

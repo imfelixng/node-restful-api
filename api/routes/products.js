@@ -35,7 +35,7 @@ const Product = require('../models/product');
 
 router.get('/', (req, res, next) => { // /products
     //function select: định nghĩa các trường cần trả về cho client
-    Product.find().select("_id name price productImage").then(docs => {
+    Product.find().select("_id name price productImage descriptionPhotos").then(docs => {
         
         const response = {
             count: docs.length,
@@ -44,6 +44,7 @@ router.get('/', (req, res, next) => { // /products
                     name: doc.name,
                     price: doc.price,
                     productImage: doc.productImage,
+                    descriptionPhotos: doc.descriptionPhotos,
                     _id: doc._id,
                     request: {
                         type: 'GET',
@@ -60,13 +61,16 @@ router.get('/', (req, res, next) => { // /products
     });
 });
 
-router.post('/', upload.single('productImage') ,(req, res, next) => { // /products
-    
+router.post('/', upload.fields([{name: 'productImage'},{name: 'descriptionPhotos'}]) ,(req, res, next) => { // /products
+  
+    console.log(req.files);
+
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         price: req.body.price,
-        productImage: req.file.path
+        productImage: req.files.productImage[0].path,
+        descriptionPhotos: req.files.descriptionPhotos.map(photo => photo.path)
     });
 
     product.save().then(doc => {
@@ -76,6 +80,7 @@ router.post('/', upload.single('productImage') ,(req, res, next) => { // /produc
                 name: doc.name,
                 price: doc.price,
                 productImage: doc.productImage,
+                descriptionPhotos: doc.descriptionPhotos,
                 _id: doc._id,
                 request: {
                     type: "GET",
@@ -153,7 +158,8 @@ router.delete('/:productId', (req, res, next) => {
                 body: {
                     name: 'String',
                     price: 'Number',
-                    productImage: 'String'
+                    productImage: 'File',
+                    descriptionPhotos: 'Multiple file'
                 }
             }
         });
