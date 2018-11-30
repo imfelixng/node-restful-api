@@ -78,7 +78,7 @@ exports.orders_get_order = (req, res, next) => {
         
         return res.status(404).json({message: "No find order with ID = " + orderId});
         
-    }).catch(error => res.status(500).json({error: err}));
+    }).catch(err => res.status(500).json({error: err}));
 };
 
 exports.orders_delete_order = (req, res, next) => {
@@ -87,7 +87,7 @@ exports.orders_delete_order = (req, res, next) => {
     Order.deleteOne({_id: id})
     .then(order => {
 
-        if(!order) {
+        if(order.n === 0) {
             return res.status(404).json({
                 message: "Order not found"
             });

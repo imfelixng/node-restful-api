@@ -74,7 +74,7 @@ exports.products_get_product = (req, res, next) => {
                     }
                 });
             } else {
-                res.status(404).json({message: "No find product with ID = " + id});
+                return res.status(404).json({message: "No find product with ID = " + id});
             }
         }
     )
@@ -94,56 +94,48 @@ exports.products_update_product = (req, res, next) => {
         updateOps[propName] = req.body[propName];
     }
 
-    Product.findOne({_id: id}).then(product => {
-        
-        if(!product) {
-            return res.status(404).json({
-                message: 'No find product with ID = ' + id
-            });
+    Product.updateOne({_id:id}, {$set: updateOps}).then(doc => {
+
+        if(doc.n === 0) {
+            return res.status(404).json({message: "Product not found"})
         }
-        
-        Product.updateOne({_id : product._id}, {$set: updateOps}).then(doc => {
-            res.status(200).json({
-                message: 'Product updated',
-                request: {
-                   type: 'GET',
-                   url: "http://localhost:12345/products/" + id 
-                }
-            });
-        }).catch(err => {
-            return res.status(500).json({error: err})
+
+        res.status(200).json({
+            message: 'Product updated',
+            request: {
+               type: 'GET',
+               url: "http://localhost:12345/products/" + id 
+            }
         });
-    })
-    .catch(err => res.status(500).json({error: err}))
+    }).catch(err => {
+        return res.status(500).json({error: err})
+    });
 };
 
 exports.products_delete_product = (req, res, next) => {
     const id = req.params.productId;
-    
-    Product.findOne({_id: id}).then(product => {
-        if(!product) {
-            return res.status(404).json({
-                message: 'No find product with ID = ' + id
-            });
+
+    Product.deleteOne({_id: id}).then(doc => {
+        console.log(doc.n);
+        if(doc.n === 0) {
+            return res.status(404).json({message: "Product not found"})
         }
-        Product.deleteOne({_id: product._id}).then(doc => {
-            res.status(200).json({
-                message: 'Product deleted',
-                request: {
-                    type: 'POST',
-                    url: "http://localhost:12345/products",
-                    body: {
-                        name: 'String',
-                        price: 'Number',
-                        productImage: 'File',
-                        descriptionPhotos: 'Multiple file'
-                    }
+
+        res.status(200).json({
+            message: 'Product deleted',
+            request: {
+                type: 'POST',
+                url: "http://localhost:12345/products",
+                body: {
+                    name: 'String',
+                    price: 'Number',
+                    productImage: 'File',
+                    descriptionPhotos: 'Multiple file'
                 }
-            });
-        })
-        .catch( err => {
-            return res.status(500).json({error: err})
+            }
         });
     })
-    .catch(err => res.status(500).json({error: err}));
+    .catch( err => {
+        return res.status(500).json({error: err})
+    });
 };
