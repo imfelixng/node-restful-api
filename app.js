@@ -9,11 +9,13 @@ const mongoUrl = require('./api/configs/keys').mongoUrl;
 
 const productRoutes = require('./api/routes/products');
 const orderRouters = require('./api/routes/orders');
+const userRouters = require('./api/routes/users');
 
 mongoose.connect(
     mongoUrl, 
     {
         useNewUrlParser: true,
+        useCreateIndex: true
     }, 
     (err) => {
     if(err) {
@@ -80,6 +82,7 @@ app.use(cors());
 
 app.use('/products', productRoutes);
 app.use('/orders', orderRouters);
+app.use('/users', userRouters);
 
 const createLog = (req, res, next) => {
     const error = new Error('Not found');

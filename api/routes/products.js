@@ -63,14 +63,12 @@ router.get('/', (req, res, next) => { // /products
 
 router.post('/', upload.fields([{name: 'productImage'},{name: 'descriptionPhotos'}]) ,(req, res, next) => { // /products
   
-    console.log(req.files);
-
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         price: req.body.price,
-        productImage: req.files.productImage[0].path,
-        descriptionPhotos: req.files.descriptionPhotos.map(photo => photo.path)
+        productImage: req.files.productImage && req.files.productImage[0].path,
+        descriptionPhotos: req.files.descriptionPhotos && req.files.descriptionPhotos.map(photo => photo.path)
     });
 
     product.save().then(doc => {
