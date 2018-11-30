@@ -1,6 +1,7 @@
 {
     "env": {
         "MONGO_USER": "ngquangan",
-        "MONGO_PW": "nqa97_it"
+        "MONGO_PW": "nqa97_it",
+        "JWT_KEY": "secret"
     }
 }

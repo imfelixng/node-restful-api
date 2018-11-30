@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const bcypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 const User = require('../models/user');
 
 router.post('/signup', (req, res, next) => {
@@ -35,7 +37,42 @@ router.post('/signup', (req, res, next) => {
 });
 
 router.post('/signin', (req, res, next) => {
+    User.findOne({email: req.body.email})
+    .then(user => {
+        if(!user) {
+            return res.status(404).json({
+                message: 'Auth failed'
+            });
+        }
+        bcypt.compare(req.body.password, user.password)
+        .then(result => {
+            console.log(result);
+            if(result) {
+                const token = jwt.sign(
+                    {
+                        email: req.body.email,
+                        userId: user._id,
 
+                    },
+                    process.env.JWT_KEY,
+                    {
+                        expiresIn: "1h"
+                    }
+                );
+                return res.status(200).json({
+                    message: 'Auth successful',
+                    token
+                })
+            } else {
+                return res.status(401).json({
+                    message: 'Auth failed'
+                });
+            }
+        }).catch(error => res.status(401).json({
+            message: 'Auth failed'
+        }))
+    })
+    .catch(err => res.status(500).json({error: err}))
 });
 
 router.delete('/:userId', (req, res, next) => {
