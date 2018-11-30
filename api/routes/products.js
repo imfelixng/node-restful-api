@@ -1,11 +1,6 @@
 const express = require('express');
-
 const router = express.Router();
-
-const mongoose = require('mongoose');
-
 const multer = require("multer");
-
 const checkAuth = require('../middleware/check-auth');
 
 const storage = multer.diskStorage({
@@ -32,142 +27,27 @@ const upload = multer({
     fileFilter
 });
 
-const Product = require('../models/product');
+const ProductsController = require('../controllers/products');
 
+router.get('/', ProductsController.products_get_all);
 
-router.get('/', (req, res, next) => { // /products
-    //function select: định nghĩa các trường cần trả về cho client
-    Product.find().select("_id name price productImage descriptionPhotos").then(docs => {
-        
-        const response = {
-            count: docs.length,
-            products: docs.map(doc => {
-                return {
-                    name: doc.name,
-                    price: doc.price,
-                    productImage: doc.productImage,
-                    descriptionPhotos: doc.descriptionPhotos,
-                    _id: doc._id,
-                    request: {
-                        type: 'GET',
-                        url: "http://localhost:12345/products/" + doc._id
-                    }
-                }
-            })
-        }
-
-        res.status(200).json(response);
-    }).catch(err => {
-        console.log(err);
-        res.status(500).json({error: err});
-    });
-});
 //do multer nên để sau upload để nhận lại các trường trong body nếu gửi token bằng body
 //để trước upload nếu gửi token bằng header.authorization 
-router.post('/', checkAuth, upload.fields([{name: 'productImage'},{name: 'descriptionPhotos'}]), (req, res, next) => { // /products
-  
-    const product = new Product({
-        _id: new mongoose.Types.ObjectId(),
-        name: req.body.name,
-        price: req.body.price,
-        productImage: req.files.productImage && req.files.productImage[0].path,
-        descriptionPhotos: req.files.descriptionPhotos && req.files.descriptionPhotos.map(photo => photo.path)
-    });
+router.post('/', 
+            checkAuth, 
+            upload.fields([
+                {name: 'productImage'},
+                {name: 'descriptionPhotos'}
+            ]), 
+            ProductsController.products_create_product
+            );
 
-    product.save().then(doc => {
-        res.status(201).json({
-            message: 'Created product successfully',
-            createProduct: {
-                name: doc.name,
-                price: doc.price,
-                productImage: doc.productImage,
-                descriptionPhotos: doc.descriptionPhotos,
-                _id: doc._id,
-                request: {
-                    type: "GET",
-                    url: "http://localhost:12345/products/" + doc._id
-                }
-            }
-        });
-    }).catch(err => {
-        console.log(err);
-        res.status(200).json({error: err})
-    });
-
-    
-});
-
-router.get('/:productId', (req, res, next) => {
-    let id = req.params.productId;
-    Product.findById(id).select("name price _id productImage").then(
-        doc => {
-            console.log(doc);
-            if(doc) {
-                res.status(200).json({
-                    product: doc,
-                    request: {
-                        type: 'GET',
-                        url: "http://localhost:12345/products/" + doc._id
-                    }
-                });
-            } else {
-                res.status(404).json({message: "No find product with ID = " + id});
-            }
-        }
-    )
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({error: err})
-    });
-});
+router.get('/:productId', ProductsController.products_get_product);
 
 //put: all resource
 //patch: a part of resource
+router.patch('/:productId', checkAuth, ProductsController.products_update_product);
 
-router.patch('/:productId', checkAuth, (req, res, next) => {
-
-    const id = req.params.productId;
-
-    const updateOps = {};
-
-    for(let propName in req.body) {
-        updateOps[propName] = req.body[propName];
-    }
-
-    Product.updateOne({_id:id}, {$set: updateOps}).then(doc => {
-        res.status(200).json({
-            message: 'Product updated',
-            request: {
-               type: 'GET',
-               url: "http://localhost:12345/products/" + id 
-            }
-        });
-    }).catch(err => {
-        res.status(500).json({error: err})
-    });
-
-});
-
-router.delete('/:productId', checkAuth, (req, res, next) => {
-    const id = req.params.productId;
-    Product.deleteOne({_id: id}).then(doc => {
-        res.status(200).json({
-            message: 'Product deleted',
-            request: {
-                type: 'POST',
-                url: "http://localhost:12345/products",
-                body: {
-                    name: 'String',
-                    price: 'Number',
-                    productImage: 'File',
-                    descriptionPhotos: 'Multiple file'
-                }
-            }
-        });
-    })
-    .catch( err => {
-        res.status(500).json({error: err})
-    });
-});
+router.delete('/:productId', checkAuth, ProductsController.products_delete_product);
 
 module.exports = router;
