@@ -3,10 +3,12 @@ const router = express.Router();
 
 const mongoose = require('mongoose');
 
+const checkAuth = require('../middleware/check-auth');
+
 const Order = require('../models/order');
 const Product = require('../models/product');
 
-router.get('/', (req, res, next) => {
+router.get('/', checkAuth, (req, res, next) => {
 
     Order.find()
     .select("_id product quantity")
@@ -33,8 +35,8 @@ router.get('/', (req, res, next) => {
     
 });
 
-router.post('/', (req, res, next) => {
-
+router.post('/', checkAuth, (req, res, next) => {
+    console.log(req.body.productId);
     Product.findById(req.body.productId).select("_id name price")
     .then(product => {
         if(!product) return res.status(404).json({
@@ -65,7 +67,7 @@ router.post('/', (req, res, next) => {
 
 });
 
-router.get('/:orderId', (req, res, next) => {
+router.get('/:orderId', checkAuth, (req, res, next) => {
     let orderId = req.params.orderId;
 
     Order.findById(orderId)
@@ -88,7 +90,7 @@ router.get('/:orderId', (req, res, next) => {
 
 });
 
-router.patch('/:orderId', (req, res, next) => {
+router.patch('/:orderId', checkAuth, (req, res, next) => {
     let id = req.params.orderId;
 
     let OrderUp = {
@@ -115,7 +117,7 @@ router.patch('/:orderId', (req, res, next) => {
 
 });
 
-router.delete('/:orderId', (req, res, next) => {
+router.delete('/:orderId', checkAuth, (req, res, next) => {
     let id = req.params.orderId;
     
     Order.deleteOne({_id: id})

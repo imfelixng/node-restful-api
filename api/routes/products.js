@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 
 const multer = require("multer");
 
+const checkAuth = require('../middleware/check-auth');
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, './uploads/')
@@ -60,8 +62,9 @@ router.get('/', (req, res, next) => { // /products
         res.status(500).json({error: err});
     });
 });
-
-router.post('/', upload.fields([{name: 'productImage'},{name: 'descriptionPhotos'}]) ,(req, res, next) => { // /products
+//do multer nên để sau upload để nhận lại các trường trong body nếu gửi token bằng body
+//để trước upload nếu gửi token bằng header.authorization 
+router.post('/', checkAuth, upload.fields([{name: 'productImage'},{name: 'descriptionPhotos'}]), (req, res, next) => { // /products
   
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
@@ -121,7 +124,7 @@ router.get('/:productId', (req, res, next) => {
 //put: all resource
 //patch: a part of resource
 
-router.patch('/:productId', (req, res, next) => {
+router.patch('/:productId', checkAuth, (req, res, next) => {
 
     const id = req.params.productId;
 
@@ -145,7 +148,7 @@ router.patch('/:productId', (req, res, next) => {
 
 });
 
-router.delete('/:productId', (req, res, next) => {
+router.delete('/:productId', checkAuth, (req, res, next) => {
     const id = req.params.productId;
     Product.deleteOne({_id: id}).then(doc => {
         res.status(200).json({
